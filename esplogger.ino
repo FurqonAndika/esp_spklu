@@ -2,9 +2,11 @@
 #include "driver/lcd.h"
 #include "driver/wifi_.h"
 #include "driver/relay.h"
+#include "driver/realtimeclock.h"
+#include "driver/pzem.h"
 
 
-#define button_reset 15
+#define button_reset D3
 
 
 
@@ -24,6 +26,8 @@ void setup() {
   pinMode(button_reset,INPUT);
   Relay_Init();
   Relay_Off();
+  rtc_init();
+  LCD_Init();
 
   EEPROM_Init();
 
@@ -91,20 +95,29 @@ void loop() {
   tb.loop();
 
 
-   //if (timeElapsed > 10000) { //arduino akan mengirim data setiap 10 detik, jangan lebih kecil dari 5 detik
+   
   if (millis() - waktu > 10000) {
     Lcd_Set_Display("Send Data","To Server");
     
-    tb.sendTelemetryFloat("voltageR",random(1, 8));
-    tb.sendTelemetryFloat("voltageS",random(1, 8));
-    tb.sendTelemetryFloat("voltageT",random(1, 8));
-    tb.sendTelemetryFloat("currentR",random(1, 8));
-    tb.sendTelemetryFloat("currentS",random(1, 8));
-    tb.sendTelemetryFloat("currentT",random(1, 8));
+    tb.sendTelemetryFloat("voltageR",Voltage_R());
+    tb.sendTelemetryFloat("voltageS",Voltage_S());
+    tb.sendTelemetryFloat("voltageT",Voltage_T());
+    tb.sendTelemetryFloat("currentR",Current_R());
+    tb.sendTelemetryFloat("currentS",Current_S());
+    tb.sendTelemetryFloat("currentT",Current_T());
    
     waktu = millis();
     Lcd_Set_Display("Data","Sent");
    
   }
-
+  if (millis()-refresh>=1000){
+    Lcd_Set_Display(get_date(),get_clock());
+    if((get_hour()==0) && (get_minute()<=10)){
+      Relay_Off();
+    }
+    else if((get_hour()==0) && (get_minute()>10)){
+      Relay_On();
+    }
+    refresh=millis();
+  }
 }
