@@ -13,6 +13,7 @@
 String ssid, password,token;
 
 char tokenchar[30];
+char serverchar[30];
 bool reset_pass = true;
 String data_gps = "";
 
@@ -23,7 +24,7 @@ unsigned long refresh = 0;
 
 void setup() {
   Serial.begin(115200);
-  pinMode(button_reset,INPUT);
+  pinMode(button_reset,INPUT_PULLUP);
   Relay_Init();
   Relay_Off();
   rtc_init();
@@ -36,13 +37,17 @@ void setup() {
   ssid = Read_SSID();
   password = Read_Pass_SSID();
   token = Read_Token();
+  String server = Read_Server();
+
   Serial.println("ssid :" + ssid);
   Serial.println("pass :" + password);
   Serial.println("token :" +token);
+  Serial.println("server :" +server);
   token.toCharArray(tokenchar,token.length()+1);
+  server.toCharArray(serverchar, server.length()+1);
   Lcd_Set_Display("Connecting to", ssid);
 
-  if (digitalRead(button_reset)) {  //ketika pin button tekan saat pertama kali dinyalakan maka akan masuk ke mode AP(Access point)
+  if (!digitalRead(button_reset)) {  //ketika pin button tekan saat pertama kali dinyalakan maka akan masuk ke mode AP(Access point)
     AP_Mode();
     
     while (reset_pass) {
@@ -81,7 +86,7 @@ void loop() {
 
 
   if (!tb.connected()) {
-    if (!tb.connect(THINGSBOARD_SERVER,tokenchar)){
+    if (!tb.connect(serverchar,tokenchar)){
       Serial.println("failed to connect");
       Lcd_Set_Display("Failed", "to connect");
       return;

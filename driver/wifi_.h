@@ -35,8 +35,9 @@ int status = 1000;
 
 String txt= "<form action=\"/get\">\n"
              "    nama_wifi: <input type=\"text\" name=\"nama_wifi\">\n"
-             "    password: <input type=\"text\" name=\"password\">\n"
+             "    password: <input type=\"text\" name=\"password\">\n <br>"
               "    token: <input type=\"text\" name=\"token\">\n"
+              "    server: <input type=\"text\" name=\"token\">\n"
              "    <input type=\"submit\" value=\"Submit\">\n"
              "  </form><br>\n"
              "  </form>";
@@ -188,7 +189,7 @@ void Change_Wifi(){
                         // Serial.println(http);
                         int mark;
 
-                        String pass,token;
+                        String pass,token, server;
                         int start,end;
                         start = http.indexOf("nama_wifi=");
                         mark = start;
@@ -212,7 +213,15 @@ void Change_Wifi(){
                                 http = http.substring(end+1,http.indexOf('\r'));
                                 Serial.println(http);
                                 start = http.indexOf("=");
-                                token = http.substring(start+1,-1);
+                                end = http.indexOf("&");
+                                token = http.substring(start+1,end);
+
+
+                                http = http.substring(end+1,http.indexOf('\r'));
+                                Serial.println(http);
+                                start = http.indexOf("=");
+                                end = http.indexOf("&");
+                                server = http.substring(start+1,-1);
                                 // Serial.println(token);
                                 // Serial.println(token);
                                 // Serial.println(password);
@@ -233,6 +242,7 @@ void Change_Wifi(){
                                 Serial.println("name="+ name);
                                 Serial.println("pass="+pass);
                                 Serial.println("token="+token);
+                                Serial.println("server="+server);
                                 reset_pass=false;
                                 String name_=name;
                                 name +='&';
@@ -240,12 +250,15 @@ void Change_Wifi(){
                                 name +='/';
                                 name +=token;
                                 name +=',';
+                                name +=server;
+                                name +=';';
 
-                                for (int x = 0; x<=70; x++){
+                                for (int x = 0; x<=90; x++){
                                         EEPROM.write(x,0);
+                                        delay(10);
                                 }
                                 EEPROM.commit();
-                                if (name.length()<=50){
+                                if (name.length()<=90){
                                         for (int x=0; x<name.length(); x++){
                                               EEPROM.write(x, name[x]);
                                         }

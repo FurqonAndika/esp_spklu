@@ -2,7 +2,7 @@
 
 
 void EEPROM_Init(){
-        EEPROM.begin(50);
+        EEPROM.begin(90);
         // String data = "ini ssid & ini pass/";
         // for (int x =0; x<data.length(); x++){
         //         EEPROM.write(x, data[x]);
@@ -15,10 +15,10 @@ String Read_SSID(){
         String temp = "";
         String ssid = "";
 
-        for (int x=0; x<50; x++){
+        for (int x=0; x<90; x++){
         char c = EEPROM.read(x);
 
-        if (c==',')break;
+        if (c==';')break;
         temp +=c;
         }
   
@@ -30,10 +30,10 @@ String Read_SSID(){
 String Read_Pass_SSID(){
         String temp = "";
         String password = "";
-        for (int x=0; x<50; x++){
+        for (int x=0; x<90; x++){
                 char c = EEPROM.read(x);
 
-                if (c==',')break;
+                if (c==';')break;
                 temp +=c;
         }
   
@@ -45,17 +45,32 @@ String Read_Pass_SSID(){
 
 String Read_Token(){
         String temp = "";
-        String password = "";
-        for (int x=0; x<50; x++){
+        String token = "";
+        for (int x=0; x<90; x++){
         char c = EEPROM.read(x);
 
-        if (c==',')break;
+        if (c==';')break;
         temp +=c;
         }
   
-        // password= temp.substring(0,temp.indexOf('&'));
-        password = temp.substring(temp.indexOf('/')+1);
-        return password; 
+        // token= temp.substring(0,temp.indexOf('&'));
+        token = temp.substring(temp.indexOf('/')+1,temp.indexOf(','));
+        return token; 
 }
 
+
+String Read_Server(){
+        String temp = "";
+        String server = "";
+        for (int x=0; x<90; x++){
+        char c = EEPROM.read(x);
+
+        if (c==';')break;
+        temp +=c;
+        }
+  
+        // server= temp.substring(0,temp.indexOf('&'));
+        server = temp.substring(temp.indexOf(',')+1);
+        return server; 
+}
 
