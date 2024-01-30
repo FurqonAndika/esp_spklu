@@ -20,23 +20,25 @@ serial interface will be used for communication with the module.
  * Pin 12 Rx (Connects to the Tx pin on the PZEM)
  * Pin 13 Tx (Connects to the Rx pin on the PZEM)
 */
-#if !defined(PZEM_RX_PIN) && !defined(PZEM_TX_PIN)
-#define PZEMR_RX_PIN D5
-#define PZEMR_TX_PIN D6
-#define PZEMS_RX_PIN D7
-#define PZEMS_TX_PIN D8
-#define PZEMT_RX_PIN D1
-#define PZEMT_TX_PIN D0
-#endif
+// #if !defined(PZEM_RX_PIN) && !defined(PZEM_TX_PIN)
+// #define PZEMR_RX_PIN D6
+// #define PZEMR_TX_PIN D5
+// #define PZEMS_RX_PIN D0
+// #define PZEMS_TX_PIN D7
+// #define PZEMT_RX_PIN D1
+// #define PZEMT_TX_PIN D0
+// #endif
 
 
-SoftwareSerial pzemSWSerial_R(PZEMR_RX_PIN, PZEMR_TX_PIN);
-SoftwareSerial pzemSWSerial_S(PZEMS_RX_PIN, PZEMS_TX_PIN);
-SoftwareSerial pzemSWSerial_T(PZEMT_RX_PIN, PZEMT_TX_PIN);
+// SoftwareSerial pzemSWSerial_R(PZEMS_RX_PIN, PZEMS_TX_PIN);
+// SoftwareSerial pzemSWSerial_S(PZEMR_RX_PIN, PZEMR_TX_PIN);
 
-PZEM004Tv30 pzem_R(pzemSWSerial_R);
-PZEM004Tv30 pzem_S(pzemSWSerial_S);
-PZEM004Tv30 pzem_T(pzemSWSerial_T);
+// SoftwareSerial pzemSWSerial_T(PZEMT_RX_PIN, PZEMT_TX_PIN);
+// SoftwareSerial pzemSWSerial_T(PZEMT_RX_PIN, PZEMT_TX_PIN);
+
+PZEM004Tv30 pzem_R(13,16);
+PZEM004Tv30 pzem_S(D5,D6);
+PZEM004Tv30 pzem_T(Serial);
 
 
 float Voltage_R(){

@@ -6,7 +6,7 @@
 #include "driver/pzem.h"
 
 
-#define button_reset D3
+#define button_reset D8
 
 
 
@@ -20,17 +20,26 @@ String data_gps = "";
 unsigned long waktu = 0;
 unsigned long refresh = 0;
 
-
+String status_relay = "ON";
 
 void setup() {
-  Serial.begin(115200);
-  pinMode(button_reset,INPUT_PULLUP);
+  Serial.begin(9600);
+  pinMode(button_reset,INPUT);
   Relay_Init();
   Relay_Off();
   rtc_init();
   LCD_Init();
 
   EEPROM_Init();
+
+  Serial.println(Voltage_R());
+  Serial.println(Voltage_S());
+  Serial.println(Voltage_T());
+  Serial.println(Current_R());
+  Serial.println(Current_S());
+  Serial.println(Current_T());
+    
+  
 
 
   // membaca ssid dan pass di memory eeprom dan token 
@@ -47,7 +56,28 @@ void setup() {
   server.toCharArray(serverchar, server.length()+1);
   Lcd_Set_Display("Connecting to", ssid);
 
-  if (!digitalRead(button_reset)) {  //ketika pin button tekan saat pertama kali dinyalakan maka akan masuk ke mode AP(Access point)
+
+
+
+  // connect to WIFI
+  Wifi_Connect(ssid, password);
+  Lcd_Set_Display("Connected to ", ssid);
+  // pub_init();
+
+
+  // ketika dicolokin ke laptop
+  // if (Serial.available()){
+  //   rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  // }
+
+ 
+
+}
+
+void loop() {
+  now = rtc.now();
+
+  if (digitalRead(button_reset)) {  //ketika pin button tekan saat pertama kali dinyalakan maka akan masuk ke mode AP(Access point)
     AP_Mode();
     
     while (reset_pass) {
@@ -56,18 +86,6 @@ void setup() {
       
     }
   }
-  // connect to WIFI
-  Wifi_Connect(ssid, password);
-  Lcd_Set_Display("Connected to ", ssid);
-  // pub_init();
-
- 
-
-}
-
-void loop() {
-
- 
   // String longlat = Read_GPS();
   // int delimiter;
   // delimiter = longlat.indexOf('/');
@@ -101,8 +119,8 @@ void loop() {
 
 
    
-  if (millis() - waktu > 10000) {
-    Lcd_Set_Display("Send Data","To Server");
+  if (millis() - waktu > 5000) {
+    // Lcd_Set_Display("Send Data","To Server");
     
     tb.sendTelemetryFloat("voltageR",Voltage_R());
     tb.sendTelemetryFloat("voltageS",Voltage_S());
@@ -110,18 +128,36 @@ void loop() {
     tb.sendTelemetryFloat("currentR",Current_R());
     tb.sendTelemetryFloat("currentS",Current_S());
     tb.sendTelemetryFloat("currentT",Current_T());
+
+    char statuschar[status_relay.length()+1];
+    status_relay.toCharArray(statuschar, status_relay.length()+1);
+    tb.sendTelemetryString("status", statuschar);
    
     waktu = millis();
-    Lcd_Set_Display("Data","Sent");
+    // Lcd_Set_Display("Data","Sent");
    
   }
   if (millis()-refresh>=1000){
-    Lcd_Set_Display(get_date(),get_clock());
-    if((get_hour()==0) && (get_minute()<=10)){
-      Relay_Off();
+    // Serial.println("hour:"+String(get_hour()));
+    // Serial.println("minute:"+String(get_minute()));
+    //  Serial.println("jam:"+String(now.hour()));
+    //  Serial.println("menit:"+String(now.minute()));
+
+    Serial.println(Voltage_R());
+    Serial.println(Voltage_S());
+    Serial.println(Voltage_T());
+    Serial.println(Current_R());
+    Serial.println(Current_S());
+    Serial.println(Current_T());
+    
+    // Lcd_Set_Display(get_date(),get_clock());
+    if((now.hour()==0) && (now.minute()<=10)){
+      // Relay_Off();
+      status_relay = "OFF";
     }
-    else if((get_hour()==0) && (get_minute()>10)){
-      Relay_On();
+    else if((now.hour()==0) && (now.minute()>10)){
+      // Relay_On();
+      status_relay="ON";
     }
     refresh=millis();
   }

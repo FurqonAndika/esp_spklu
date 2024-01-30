@@ -5,12 +5,12 @@ void Relay_Init(){
 }
 void Relay_On(){
   digitalWrite(pin_relay, 0);
-  Serial.println("pin relay on");
+  // Serial.println("pin relay on");
 }
 
 void Relay_Off(){
   digitalWrite(pin_relay,     1);
-  Serial.println("pin relay off");
+  // Serial.println("pin relay off");
 }
 
 

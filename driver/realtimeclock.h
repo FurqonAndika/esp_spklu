@@ -13,26 +13,30 @@ void rtc_init(){
 
 }
 
-String get_time(){
+// String get_time(){
+//     now = rtc.now();
+//     return (String(now.day())+","+String(now.day())+","+String(now.year())+","+
+//     String(now.hour())+","+String(now.minute())+","+String(now.second()));
 
-    return (String(now.day())+","+String(now.day())+","+String(now.year())+","+
-    String(now.hour())+","+String(now.minute())+","+String(now.second()));
+// }
 
-}
+// String get_date(){
+//      now = rtc.now();
+//     return (String(now.day())+"/"+String(now.month())+"/"+String(now.year()));
+// }
 
-String get_date(){
-    return (String(now.day())+"/"+String(now.month())+"/"+String(now.year()));
-}
+// String get_clock(){
+//     //  now = rtc.now();
+//     return (String(now.hour())+":"+String(now.minute())+":"+String(now.second()));
+// }
 
-String get_clock(){
-    return (String(now.hour())+":"+String(now.minute())+":"+String(now.second()));
-}
-
-int get_hour(){
-    return now.hour();
-}
+// String get_hour(){
+//     //  now = rtc.now();
+//     return (String(now.hour(),DEC));
+// }
 
 
-int get_minute(){
-    return now.minute();
-}
+// String get_minute(){
+//      now = rtc.now();
+//     return (String(now.minute(),DEC));
+// }

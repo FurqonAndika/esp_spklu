@@ -43,6 +43,7 @@ String txt= "<form action=\"/get\">\n"
              "  </form>";
 
 extern bool reset_pass;
+extern String status_relay;
 extern String token;
 extern void Relay_On();
 extern void Relay_Off();
@@ -54,21 +55,23 @@ extern void  Lcd_Set_Display(String title, String body);
 
 RPC_Response processDelayChange(const RPC_Data &data)
 {
-  Serial.println("Received the set delay RPC method");
+//   Serial.println("Received the set delay RPC method");
 
   // Process data
 
   status = data;
 
-  Serial.print("Set new value: ");
-  Serial.println(status);
+//   Serial.print("Set new value: ");
+//   Serial.println(status);
   if (status==1){
-        Lcd_Set_Display("Relay","On");
+        // Lcd_Set_Display("Relay","On");
         Relay_On();
+        status_relay="ON";
   }
   else if (status==0){
-        Lcd_Set_Display("Relay","Off");
+        // Lcd_Set_Display("Relay","Off");
         Relay_Off();
+        status_relay = "OFF";
 
   }
 
@@ -81,10 +84,10 @@ RPC_Response processDelayChange(const RPC_Data &data)
 // See https://arduinojson.org/v5/api/jsonvariant/subscript/ for more details
 RPC_Response processGetDelay(const RPC_Data &data)
 {
-  Serial.println("Received the get value method");
-  Serial.println("start");
+//   Serial.println("Received the get value method");
+//   Serial.println("start");
   status = data;
-  Serial.println(status);
+//   Serial.println(status);
 
   return RPC_Response(NULL, status);
 }
@@ -94,7 +97,7 @@ RPC_Response processGetDelay(const RPC_Data &data)
 // See https://arduinojson.org/v5/api/jsonvariant/subscript/ for more details
 RPC_Response processSetGpioState(const RPC_Data &data)
 {
-  Serial.println("Received the set GPIO RPC method");
+//   Serial.println("Received the set GPIO RPC method");
 
   int pin = data["pin"];
   bool enabled = data["enabled"];
@@ -274,6 +277,7 @@ void Change_Wifi(){
         }
 
 void Wifi_Connect(String ssid, String password){
+        WiFi.mode(WIFI_STA);
         WiFi.begin(ssid.c_str(), password.c_str());
         unsigned long time_break =millis();
         while (WiFi.status() != WL_CONNECTED) {
@@ -285,6 +289,8 @@ void Wifi_Connect(String ssid, String password){
         }
         // Serial.println();
         Serial.println("WiFi connected");
+        WiFi.setAutoReconnect(true);
+WiFi.persistent(true);
 
 
 }
