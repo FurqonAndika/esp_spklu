@@ -1,7 +1,7 @@
 ---Furqon Andika---
 Bandung 21 Januari 2024
 
--> Codingan ini di gunakan untuk ESP8366 yang terhubung dengan pzem, relay, push button dan lcd 16x2 i2c
+-> Codingan ini di gunakan untuk ESP8266 yang terhubung dengan pzem, relay, push button dan lcd 16x2 i2c
 
 -> ESP8266 akan mengirim data dari 3 module pzem, tegangan, arus ke server thingsboard, dan juga menerima perintah untuk menghidupkan
     atau mematikan relay
@@ -15,6 +15,7 @@ Bandung 21 Januari 2024
 -> https://arduino.esp8266.com/stable/package_esp8266com_index.json
 
 -> thingsboard version 0.10.2
+
 -> rtclib by adafruit 2.1.3 version
 
 -> token thingsboard saat ini LbpOLuEtFWhx3GM70A3d
