@@ -4,6 +4,7 @@
 #include "driver/relay.h"
 #include "driver/realtimeclock.h"
 #include "driver/pzem.h"
+#include "driver/buzzer.h"
 
 
 #define button_reset D8
@@ -29,6 +30,7 @@ void setup() {
   Relay_Off();
   rtc_init();
   LCD_Init();
+  buzzer_init();
 
   EEPROM_Init();
 
@@ -62,6 +64,7 @@ void setup() {
   // connect to WIFI
   Wifi_Connect(ssid, password);
   Lcd_Set_Display("Connected to ", ssid);
+  buzzer_once();
   // pub_init();
 
 
@@ -82,6 +85,7 @@ void loop() {
     
     while (reset_pass) {
       Change_Wifi();
+      buzzer_once();
       // Serial.println(digitalRead(button_reset));
       
     }
@@ -107,10 +111,12 @@ void loop() {
     if (!tb.connect(serverchar,tokenchar)){
       Serial.println("failed to connect");
       Lcd_Set_Display("Failed", "to connect");
+      buzzer_twice();
       return;
     }
     if (!tb.RPC_Subscribe(callbacks, COUNT_OF(callbacks))) {
       Serial.println("Failed to subscribe for RPC");
+      buzzer_twice();
       return;
     }
   }
