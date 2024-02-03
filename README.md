@@ -8,7 +8,7 @@ Bandung 21 Januari 2024
 
 -> Reset ssid dan pass wifi dilakukan dengan cara menekan tombol reset, lalu matikan arduino, lalu hidupkan kembali arduino sambil
     menekan tombol reset,kemudian hubungkan hp dengan wifi yang sesuai pada esp yakni myesp dengan pass 123456780. Lalu masuk ke browser dengan alamat yang ada di serial monitor, 
-    alamat defaultnya adalah 192.198.4.1
+    alamat defaultnya adalah 192.168.4.1
 
 -> Untuk melihart GPIO yang digunakan, buka driver maka di masing-masing file akan di sebutkan GPIO yang digunakan (#define)
 

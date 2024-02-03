@@ -1,39 +1,22 @@
 #include <ArduinoJson.h>
-// #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
 
-// #include <WiFiClientSecure.h>
-// Helper macro to calculate array size
+#include <ThingsBoard.h> //0.10.2
+
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
 
-// URL 
-// https://blog.thingsboard.io/2017/01/esp8266-gpio-control-over-mqtt-using.html
-
-
-// #include "../src/ThingsBoard/src/ThingsBoard.h"
-#include <ThingsBoard.h> //0.10.2
-
-
-// #define TOKEN "l7rljv4es3zkc8cxdtli"
-#define TOKEN "LbpOLuEtFWhx3GM70A3d" 
-        // OLuEtFWhx3GM70A3d
-// #define TOKEN "xue4das4ob60kvn0i3gv"  //CLOUD
-#define THINGSBOARD_SERVER "demo.thingsboard.io"
-// #define THINGSBOARD_SERVER "thingsboard.cloud"
-
-const char* APssid        = "myesp"; //ssid default
+const char* APssid        = "SPKLU"; //ssid default
 const char* APpassword    = "1234567890"; //pass default 
 
 
 WiFiServer server(80); 
 WiFiClient client;
 ThingsBoard tb(client);
-// PubSubClient pub(client);
 
-String http;
-int status = 1000;
 
+
+// form config esp
 String txt= "<form action=\"/get\">\n"
              "    nama_wifi: <input type=\"text\" name=\"nama_wifi\">\n"
              "    password: <input type=\"text\" name=\"password\">\n <br><br>"
@@ -61,18 +44,16 @@ extern void  Lcd_Set_Display(String title, String body);
 extern void set_time(int year,int month, int day, int hour, int minute);
 
 
+String http;
+int status = 1000;
 
+
+
+// fungsi menerima perintah dari dashboard
 RPC_Response processDelayChange(const RPC_Data &data)
 {
-//   Serial.println("Received the set delay RPC method");
-
-  // Process data
-
   status = data;
   buzzer_once();
-
-//   Serial.print("Set new value: ");
-//   Serial.println(status);
   if (status==1){
         // Lcd_Set_Display("Relay","On");
         Relay_On();
@@ -84,42 +65,21 @@ RPC_Response processDelayChange(const RPC_Data &data)
         status_relay = "OFF";
 
   }
-
-
   return RPC_Response(NULL, status);
 }
 
-// Processes function for RPC call "getValue"
-// RPC_Data is a JSON variant, that can be queried using operator[]
-// See https://arduinojson.org/v5/api/jsonvariant/subscript/ for more details
 RPC_Response processGetDelay(const RPC_Data &data)
 {
-//   Serial.println("Received the get value method");
-//   Serial.println("start");
   status = data;
-//   Serial.println(status);
-
   return RPC_Response(NULL, status);
 }
 
-// Processes function for RPC call "setGpioStatus"
-// RPC_Data is a JSON variant, that can be queried using operator[]
-// See https://arduinojson.org/v5/api/jsonvariant/subscript/ for more details
+
 RPC_Response processSetGpioState(const RPC_Data &data)
 {
-//   Serial.println("Received the set GPIO RPC method");
 
   int pin = data["pin"];
   bool enabled = data["enabled"];
-
-//   if (pin < COUNT_OF(leds_control)) {
-//     Serial.print("Setting LED ");
-//     Serial.print(pin);
-//     Serial.print(" to state ");
-//     Serial.println(enabled);
-
-//     digitalWrite(leds_control[pin], enabled);
-//   }
 
   return RPC_Response(data["pin"], (bool)data["enabled"]);
 }
@@ -173,6 +133,7 @@ void updateWebpage() {
 }
 
 
+// fungsi ganti wifi
 void Change_Wifi(){
         String name;
                 if ( client = server.available() ) {  // Checks if a new client tries to connect to our server  
@@ -331,6 +292,9 @@ void Change_Wifi(){
 
         }
 
+
+
+// fungsi menghubungkan wifi
 void Wifi_Connect(String ssid, String password){
         WiFi.mode(WIFI_STA);
         WiFi.begin(ssid.c_str(), password.c_str());

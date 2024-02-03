@@ -1,16 +1,21 @@
 #include <EEPROM.h>
 
 
+// iniasisasi eeproom sampai alamat 90 saja
+/*
+1.      ssid
+2.      pass
+3.      token 
+4.       server
+Total ke 4 data ini panjang nya tidak boleh lebih dari 90 karakter 
+*/
+
+
 void EEPROM_Init(){
         EEPROM.begin(90);
-        // String data = "ini ssid & ini pass/";
-        // for (int x =0; x<data.length(); x++){
-        //         EEPROM.write(x, data[x]);
-        //         delay(10);
-        //         EEPROM.commit();
-        // }
 }
 
+// membaca nama wifi (ssid)
 String Read_SSID(){
         String temp = "";
         String ssid = "";
@@ -26,7 +31,7 @@ String Read_SSID(){
         return ssid;
 }
 
-
+// membaca password wifi
 String Read_Pass_SSID(){
         String temp = "";
         String password = "";
@@ -42,7 +47,7 @@ String Read_Pass_SSID(){
         return password; 
 }
 
-
+// membaca token
 String Read_Token(){
         String temp = "";
         String token = "";
@@ -58,7 +63,7 @@ String Read_Token(){
         return token; 
 }
 
-
+// membaca alamat server
 String Read_Server(){
         String temp = "";
         String server = "";

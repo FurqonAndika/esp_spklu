@@ -3,7 +3,6 @@
 #include "driver/lcd.h"
 #include "driver/wifi_.h"
 #include "driver/relay.h"
-
 #include "driver/pzem.h"
 #include "driver/buzzer.h"
 
@@ -13,18 +12,21 @@
 
 
 String ssid, password,token;
+String status_relay = "ON";
 
 char tokenchar[30];
 char serverchar[30];
 bool reset_pass = true;
-String data_gps = "";
+
 
 unsigned long waktu = 0;
 unsigned long refresh = 0;
 
-String status_relay = "ON";
+
 
 void setup() {
+
+  // inisiasi semua periperal
   Serial.begin(9600);
   pinMode(button_reset,INPUT);
   Relay_Init();
@@ -32,9 +34,9 @@ void setup() {
   rtc_init();
   LCD_Init();
   buzzer_init();
-
   EEPROM_Init();
 
+  // fungsi ini dilakukan untuk handle error pada pzem karena menggunakan serial0
   Serial.println(Voltage_R());
   Serial.println(Voltage_S());
   Serial.println(Voltage_T());
@@ -42,70 +44,40 @@ void setup() {
   Serial.println(Current_S());
   Serial.println(Current_T());
     
-  
-
-
   // membaca ssid dan pass di memory eeprom dan token 
   ssid = Read_SSID();
   password = Read_Pass_SSID();
   token = Read_Token();
   String server = Read_Server();
 
+  // print(ssid, pass, token dan server)
   Serial.println("ssid :" + ssid);
   Serial.println("pass :" + password);
   Serial.println("token :" +token);
   Serial.println("server :" +server);
+
+  // mengubah string menjadi char
   token.toCharArray(tokenchar,token.length()+1);
   server.toCharArray(serverchar, server.length()+1);
   Lcd_Set_Display("Connecting to", ssid);
 
-
-
-
   // connect to WIFI
-  Wifi_Connect(ssid, password);
-  // Lcd_Set_Display("Connected to ", ssid);
-  // pub_init();
-
-
-  // ketika dicolokin ke laptop
-  // if (Serial.available()){
-  //   rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  // }
-
- 
+  Wifi_Connect(ssid, password); 
 
 }
 
 void loop() {
   now = rtc.now();
-
-  if (digitalRead(button_reset)) {  //ketika pin button tekan saat pertama kali dinyalakan maka akan masuk ke mode AP(Access point)
+  
+   //ketika pin button tekan maka akan masuk ke mode AP(Access point) untuk mengubah ssid, pass, token, server, dan set waktu
+  if (digitalRead(button_reset)) { 
     AP_Mode();
     buzzer_once();
     while (reset_pass) {
       Change_Wifi();
       
-      // Serial.println(digitalRead(button_reset));
-      
     }
   }
-  // String longlat = Read_GPS();
-  // int delimiter;
-  // delimiter = longlat.indexOf('/');
-  // String lat = longlat.substring(0,delimiter);
-  // String lon = longlat.substring(delimiter+1,-1);
-  // Serial.println(longlat);
-  // Serial.println(lon);
-  // Serial.println(lat);
- 
-
-  // char lon_[lon.length()+1];
-  // char lat_ [lat.length()+1];
-
-  // lon.toCharArray(lon_,lon.length()+1);
-  // lat.toCharArray(lat_, lat.length()+1);
-
 
   if (!tb.connected()) {
     if (!tb.connect(serverchar,tokenchar)){
@@ -120,14 +92,19 @@ void loop() {
       return;
     }
   }
-  
+
+
+  // callback thingsboard
   tb.loop();
 
 
-   
-  if (millis() - waktu > 5000) {
+
+  // mengirim data setiap 20 detik 
+  if (millis() - waktu > 20000) {
     // Lcd_Set_Display("Send Data","To Server");
     
+
+    // mengirim data ke thingsboard
     tb.sendTelemetryFloat("voltageR",Voltage_R());
     tb.sendTelemetryFloat("voltageS",Voltage_S());
     tb.sendTelemetryFloat("voltageT",Voltage_T());
@@ -143,12 +120,13 @@ void loop() {
     // Lcd_Set_Display("Data","Sent");
    
   }
+
+  // cek waktu setiap detik, kalau di antara jam 0:00-0:10 maka relay akan OFF
   if (millis()-refresh>=1000){
     Serial.println("hour:"+String(now.hour()));
     Serial.println("minute:"+String(now.minute()));
-    //  Serial.println("jam:"+String(now.hour()));
-    //  Serial.println("menit:"+String(now.minute()));
 
+    // PRINT NILAI PZEM UNTUK DEBUG
     Serial.println(Voltage_R());
     Serial.println(Voltage_S());
     Serial.println(Voltage_T());
@@ -157,7 +135,7 @@ void loop() {
     Serial.println(Current_T());
     
     // Lcd_Set_Display(get_date(),get_clock());
-    if((now.hour()==0) && (now.minute()<=10)){
+    if((now.hour()==0) && (now.minute()<=10) && (Current_R()<1)&& (Current_S()<1)&& (Current_T()<1)){
       Relay_Off();
       status_relay = "OFF";
     }

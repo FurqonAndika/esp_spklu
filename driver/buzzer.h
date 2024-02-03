@@ -1,9 +1,9 @@
-#define BUZZER_PIN 10   //s3
+#define BUZZER_PIN 10   //PIN S3
 
 
 void buzzer_init(){
     pinMode(BUZZER_PIN,OUTPUT);
-      digitalWrite(BUZZER_PIN,LOW);
+    digitalWrite(BUZZER_PIN,LOW);
 }
 void buzzer_once(){
     digitalWrite(BUZZER_PIN,HIGH);
