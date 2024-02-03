@@ -1,0 +1,7 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "nodemcu")(type "KiCad")(uri "${KIPRJMOD}/nodemcu.kicad_sym")(options "")(descr ""))
+  (lib (name "pzem")(type "KiCad")(uri "${KIPRJMOD}/pzem.kicad_sym")(options "")(descr ""))
+  (lib (name "relay")(type "KiCad")(uri "${KIPRJMOD}/relay.kicad_sym")(options "")(descr ""))
+  (lib (name "rtcmodule")(type "KiCad")(uri "${KIPRJMOD}/rtcmodule.kicad_sym")(options "")(descr ""))
+)
