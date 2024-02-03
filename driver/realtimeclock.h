@@ -13,6 +13,10 @@ void rtc_init(){
 
 }
 
+void set_time(int year,int month, int day, int hour, int minute){
+    rtc.adjust(DateTime(year, month, day, hour, minute,0));
+}
+
 // String get_time(){
 //     now = rtc.now();
 //     return (String(now.day())+","+String(now.day())+","+String(now.year())+","+

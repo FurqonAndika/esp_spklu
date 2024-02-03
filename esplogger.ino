@@ -1,8 +1,9 @@
 #include "driver/eeprom.h"
+#include "driver/realtimeclock.h"
 #include "driver/lcd.h"
 #include "driver/wifi_.h"
 #include "driver/relay.h"
-#include "driver/realtimeclock.h"
+
 #include "driver/pzem.h"
 #include "driver/buzzer.h"
 
@@ -63,8 +64,7 @@ void setup() {
 
   // connect to WIFI
   Wifi_Connect(ssid, password);
-  Lcd_Set_Display("Connected to ", ssid);
-  buzzer_once();
+  // Lcd_Set_Display("Connected to ", ssid);
   // pub_init();
 
 
@@ -82,10 +82,10 @@ void loop() {
 
   if (digitalRead(button_reset)) {  //ketika pin button tekan saat pertama kali dinyalakan maka akan masuk ke mode AP(Access point)
     AP_Mode();
-    
+    buzzer_once();
     while (reset_pass) {
       Change_Wifi();
-      buzzer_once();
+      
       // Serial.println(digitalRead(button_reset));
       
     }
@@ -144,8 +144,8 @@ void loop() {
    
   }
   if (millis()-refresh>=1000){
-    // Serial.println("hour:"+String(get_hour()));
-    // Serial.println("minute:"+String(get_minute()));
+    Serial.println("hour:"+String(now.hour()));
+    Serial.println("minute:"+String(now.minute()));
     //  Serial.println("jam:"+String(now.hour()));
     //  Serial.println("menit:"+String(now.minute()));
 
@@ -158,11 +158,11 @@ void loop() {
     
     // Lcd_Set_Display(get_date(),get_clock());
     if((now.hour()==0) && (now.minute()<=10)){
-      // Relay_Off();
+      Relay_Off();
       status_relay = "OFF";
     }
     else if((now.hour()==0) && (now.minute()>10)){
-      // Relay_On();
+      Relay_On();
       status_relay="ON";
     }
     refresh=millis();

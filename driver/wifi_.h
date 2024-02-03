@@ -1,6 +1,7 @@
 #include <ArduinoJson.h>
 // #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
+
 // #include <WiFiClientSecure.h>
 // Helper macro to calculate array size
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
@@ -35,9 +36,14 @@ int status = 1000;
 
 String txt= "<form action=\"/get\">\n"
              "    nama_wifi: <input type=\"text\" name=\"nama_wifi\">\n"
-             "    password: <input type=\"text\" name=\"password\">\n <br>"
+             "    password: <input type=\"text\" name=\"password\">\n <br><br>"
               "    token: <input type=\"text\" name=\"token\">\n"
-              "    server: <input type=\"text\" name=\"token\">\n"
+              "    server: <input type=\"text\" name=\"server\">\n <br><br>"
+               "    tahun: <input type=\"text\" name=\"tahun\">\n"
+              "    bulan: <input type=\"text\" name=\"bulan\">\n"
+              "    tanggal: <input type=\"text\" name=\"tanggal\">\n <br><br>" 
+               "    jam: <input type=\"text\" name=\"jam\">\n"
+              "    menit: <input type=\"text\" name=\"menit\">\n"
              "    <input type=\"submit\" value=\"Submit\">\n"
              "  </form><br>\n"
              "  </form>";
@@ -47,9 +53,12 @@ extern String status_relay;
 extern String token;
 extern void Relay_On();
 extern void Relay_Off();
+extern void buzzer_once();
+extern void buzzer_twice();
 extern void Relay_Starter_On();
 extern void Relay_Starter_Off();
 extern void  Lcd_Set_Display(String title, String body);
+extern void set_time(int year,int month, int day, int hour, int minute);
 
 
 
@@ -60,6 +69,7 @@ RPC_Response processDelayChange(const RPC_Data &data)
   // Process data
 
   status = data;
+  buzzer_once();
 
 //   Serial.print("Set new value: ");
 //   Serial.println(status);
@@ -192,7 +202,7 @@ void Change_Wifi(){
                         // Serial.println(http);
                         int mark;
 
-                        String pass,token, server;
+                        String pass,token, server, year, month, day, hour, minute;
                         int start,end;
                         start = http.indexOf("nama_wifi=");
                         mark = start;
@@ -200,13 +210,13 @@ void Change_Wifi(){
                         if (mark>10){
                                 end = http.indexOf('\r');
                                 http= http.substring(start-1+1);
-                                // Serial.println(http);
+                                Serial.println(http);
                                 start = http.indexOf("=");
                                 end = http.indexOf("&");
                                 name = http.substring(start+1,end);
 
                                 http = http.substring(end+1,http.indexOf('\r'));
-                                Serial.println(http);
+                                // Serial.println(http);
                                 start = http.indexOf("=");
                                 end = http.indexOf("&");
                                 
@@ -214,17 +224,52 @@ void Change_Wifi(){
 
                                 // Serial.println(pass);
                                 http = http.substring(end+1,http.indexOf('\r'));
-                                Serial.println(http);
+                                // Serial.println(http);
                                 start = http.indexOf("=");
                                 end = http.indexOf("&");
                                 token = http.substring(start+1,end);
 
 
                                 http = http.substring(end+1,http.indexOf('\r'));
-                                Serial.println(http);
+                                // Serial.println(http);
                                 start = http.indexOf("=");
                                 end = http.indexOf("&");
-                                server = http.substring(start+1,-1);
+                                server = http.substring(start+1,end);
+
+                                
+                                http = http.substring(end+1,http.indexOf('\r'));
+                                // Serial.println(http);
+                                start = http.indexOf("=");
+                                end = http.indexOf("&");
+                                year = http.substring(start+1,end);
+
+                                
+                                http = http.substring(end+1,http.indexOf('\r'));
+                                // Serial.println(http);
+                                start = http.indexOf("=");
+                                end = http.indexOf("&");
+                                month = http.substring(start+1,end);
+
+                                
+                                http = http.substring(end+1,http.indexOf('\r'));
+                                // Serial.println(http);
+                                start = http.indexOf("=");
+                                end = http.indexOf("&");
+                                day = http.substring(start+1,end);
+
+                                
+                                http = http.substring(end+1,http.indexOf('\r'));
+                                // Serial.println(http);
+                                start = http.indexOf("=");
+                                end = http.indexOf("&");
+                                hour = http.substring(start+1,end);
+
+                                
+                                http = http.substring(end+1,http.indexOf('\r'));
+                                // Serial.println(http);
+                                start = http.indexOf("=");
+                                end = http.indexOf("&");
+                                minute = http.substring(start+1,-1);
                                 // Serial.println(token);
                                 // Serial.println(token);
                                 // Serial.println(password);
@@ -246,6 +291,11 @@ void Change_Wifi(){
                                 Serial.println("pass="+pass);
                                 Serial.println("token="+token);
                                 Serial.println("server="+server);
+                                Serial.println("year="+year);
+                                Serial.println("month="+month);
+                                Serial.println("day="+day);
+                                Serial.println("hour="+hour);
+                                Serial.println("minute="+minute);
                                 reset_pass=false;
                                 String name_=name;
                                 name +='&';
@@ -255,6 +305,10 @@ void Change_Wifi(){
                                 name +=',';
                                 name +=server;
                                 name +=';';
+
+                                
+                                // rtc.adjust(DateTime(year.toInt(), month.toInt(),day.toInt(), hour.toInt(), minute.toInt(),0));
+                                set_time(year.toInt(), month.toInt(),day.toInt(), hour.toInt(), minute.toInt());
 
                                 for (int x = 0; x<=90; x++){
                                         EEPROM.write(x,0);
@@ -269,6 +323,7 @@ void Change_Wifi(){
                                         // Lcd_Set_Display(name_, pass);
                                         // delay(3000);
                                 }
+                                
                         }
                         http = "";  
                         client.stop();            // Disconnect the client.  
@@ -283,14 +338,20 @@ void Wifi_Connect(String ssid, String password){
         while (WiFi.status() != WL_CONNECTED) {
                 delay(500);
                 Serial.print(".");
-                // if (millis()-time_break>10000){
-                //         break;
-                // }
+                if (millis()-time_break>10000){
+                        buzzer_twice();
+                        break;
+                }
         }
         // Serial.println();
-        Serial.println("WiFi connected");
+        if(WiFi.status() == WL_CONNECTED){
+                Lcd_Set_Display ("connected to", ssid);
+                Serial.println("WiFi connected");
+                buzzer_once();
+        }
+
         WiFi.setAutoReconnect(true);
-WiFi.persistent(true);
+        WiFi.persistent(true);
 
 
 }

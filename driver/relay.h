@@ -2,6 +2,7 @@
 
 void Relay_Init(){
   pinMode (pin_relay, OUTPUT);
+   digitalWrite(pin_relay, 0);
 }
 void Relay_On(){
   digitalWrite(pin_relay, 0);
